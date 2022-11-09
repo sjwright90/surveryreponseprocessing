@@ -12,25 +12,52 @@ whichserv = pd.read_excel("surveyresp.xlsx", sheet_name="which", header=0)
 allresp = pd.read_excel("surveyresp.xlsx", sheet_name="all", header=0)
 importance = pd.read_excel("surveyresp.xlsx", sheet_name="important", header=0)
 # %%
-allresp["services"]=allresp.services.str.split(",")
-allresp = allresp.explode(column = "services")
-allresp["services"] = allresp.services.str.lower()
-allresp["services"] = allresp.services.str.strip()
+def str_cleaning(df,column):
+    df[column] = df[column].str.lower()
+    df[column] = df[column].str.strip()
 # %%
-orig = allresp.services.unique()
+for col in allresp.columns:
+    if allresp[col].dtype == "O":
+        str_cleaning(allresp,col)
+# %%
+allresp["services"]=allresp.services.str.split(",")
+allresp_ex = allresp.explode(column = "services")
+
+# %%
+orig = allresp_ex.services.unique()
 repl = ["hulu", "netflix", "hbo", "primevideo", "disney",\
-    "youtube", "peacock", "netflix","box","appletv", "dis",
+    "youtube", "peacock", "netflix","box","appletv", "disney",
     "peacock", "fubo", "youtube","paramount","starz","hbo", "none"]
 
 repldict = dict(zip(orig, repl))
 # %%
-allresp["services"] = allresp.services.replace(repldict)
+allresp_ex["services"] = allresp_ex.services.replace(repldict)
 # %%
-allresp.groupby("services")["Age"].value_counts()
+allresp_ex["agebins"] = pd.cut(allresp_ex.Age, bins = [0,25,35,45,100],
+                            labels=["under 25","26-35","36-45",">46"])
+allresp["agebins"] = pd.cut(allresp.Age, bins = [0,25,35,45,100],
+                            labels=["under 25","26-35","36-45",">46"])
 # %%
-ageservice = allresp[["agebins","services"]]
+filt = allresp_ex[allresp_ex.services.isin(['netflix',\
+    'disney', 'hulu', 'primevideo', 'hbo'])]
+sns.countplot(data = filt,\
+   x = "agebins", hue = "services", palette="Set2")
+
 # %%
-servicegroup = allresp.groupby("services")["agebins"]
+def quick_countplt(df, group, xaxis = "agebins"):
+    sns.countplot(data=df, x=xaxis, hue=group)
+
 # %%
-sns.histplot(ageservice.value_counts())
+sns.countplot(data=allresp, x="agebins", hue="mostpay")
+# %%
+allresp["payextr"] = np.where(allresp.payextr.str.startswith("y"),"yes","no")
+# %%
+sns.countplot(data=allresp, x="agebins", hue="payextr")
+# %%
+important = allresp.Imp.unique()
+replimp = ["no commercials", "up to date content", "original content", "many options"]
+imprepld = dict(zip(important, replimp))
+allresp["Imp"] = allresp.Imp.replace(imprepld)
+# %%
+
 # %%
