@@ -15,49 +15,91 @@ importance = pd.read_excel("surveyresp.xlsx", sheet_name="important", header=0)
 def str_cleaning(df,column):
     df[column] = df[column].str.lower()
     df[column] = df[column].str.strip()
+
+def quick_countplt(df, group, xaxis = "agebins"):
+    sns.countplot(data=df, x=xaxis, hue=group)
 # %%
+# clean all string data
 for col in allresp.columns:
     if allresp[col].dtype == "O":
         str_cleaning(allresp,col)
 # %%
+# explode out services column into new dataframe
 allresp["services"]=allresp.services.str.split(",")
+
+# %%
 allresp_ex = allresp.explode(column = "services")
 
 # %%
-orig = allresp_ex.services.unique()
-repl = ["hulu", "netflix", "hbo", "primevideo", "disney",\
-    "youtube", "peacock", "netflix","box","appletv", "disney",
-    "peacock", "fubo", "youtube","paramount","starz","hbo", "none"]
-
-repldict = dict(zip(orig, repl))
+# map services to correct identifiers
+allresp_ex["services"] = allresp_ex.services.str.strip()
 # %%
+orig = allresp_ex.services.unique()
+repl = ["hulu","netflix","HBO","prime video","disney+","youtube","peacock",\
+    "netflix","box","apple","disney+","peacock","fubo","youtube","paramount",
+    "starz","HBO","none"]
+# %%
+repldict = dict(zip(orig, repl))
+
 allresp_ex["services"] = allresp_ex.services.replace(repldict)
 # %%
+# make age bins for both dataframes
 allresp_ex["agebins"] = pd.cut(allresp_ex.Age, bins = [0,25,35,45,100],
                             labels=["under 25","26-35","36-45",">46"])
 allresp["agebins"] = pd.cut(allresp.Age, bins = [0,25,35,45,100],
                             labels=["under 25","26-35","36-45",">46"])
 # %%
+# filter out services to exclude services with low subscription
 filt = allresp_ex[allresp_ex.services.isin(['netflix',\
-    'disney', 'hulu', 'primevideo', 'hbo'])]
-sns.countplot(data = filt,\
-   x = "agebins", hue = "services", palette="Set2")
+    'disney+', 'hulu', 'prime video', 'HBO'])]
 
 # %%
-def quick_countplt(df, group, xaxis = "agebins"):
-    sns.countplot(data=df, x=xaxis, hue=group)
+# plot services histogram
+fig1,ax1 = plt.subplots()
+sns.countplot(data = filt,x = "agebins",
+              hue = "services", palette="Set2", ax = ax1)
+ax1.set_title("Customer subscriptions by age")
+ax1.set_ylabel("Count")
+ax1.set_xlabel("Age Groups")
+ax1.legend(bbox_to_anchor=(1.05,-.15), ncol=5, frameon=False,
+            labels=list(map(lambda x: x.title(), filt.services.unique())))
+fig1.tight_layout()
+fig1.show()
+fig1.savefig("servicesbyuserage.png", dpi=300)
+# %%
+fig2,ax2 = plt.subplots()
+sns.countplot(data = allresp, x="agebins",hue="mostpay",
+              hue_order=["<10","10 to 15",">15"],palette="Set2", ax=ax2)
+ax2.set_title("Monthly amount customers are willing to\npay for streaming services")
+ax2.set_ylabel("Count")
+ax2.set_xlabel("Age Groups")
+ax2.legend(frameon=False, title="Cost per month in dollars")
+fig2.tight_layout()
+fig2.savefig("willingtopaymonthly.png", dpi=300)
+# %%
+allresp["payextr"] = np.where(allresp.payextr.str.startswith("y"),"Yes","No")
+# %%
+fig3,ax3 = plt.subplots()
+sns.countplot(data=allresp, x="agebins",hue="payextr",palette="Set2",ax=ax3)
+ax3.set_title("Customer willingness to pay extra for\ncommercial free streaming")
+ax3.set_ylabel("Count")
+ax3.set_xlabel("Age Groups")
+ax3.legend(frameon=False)
+fig3.tight_layout()
+fig3.savefig("payextrafornocommercial.png",dpi=300)
 
-# %%
-sns.countplot(data=allresp, x="agebins", hue="mostpay")
-# %%
-allresp["payextr"] = np.where(allresp.payextr.str.startswith("y"),"yes","no")
-# %%
-sns.countplot(data=allresp, x="agebins", hue="payextr")
 # %%
 important = allresp.Imp.unique()
-replimp = ["no commercials", "up to date content", "original content", "many options"]
+replimp = ["No Commercials", "Up to Date Content", "Original Content", "Many Options"]
 imprepld = dict(zip(important, replimp))
 allresp["Imp"] = allresp.Imp.replace(imprepld)
 # %%
-
+fig4,ax4 = plt.subplots()
+sns.countplot(data=allresp, x="agebins", hue="Imp",palette="Set2", ax=ax4)
+ax4.set_title("Customer's preferences in a streaming service")
+ax4.set_ylabel("Count")
+ax4.set_xlabel("Age Groups")
+ax4.legend(bbox_to_anchor=(.9,-.15), ncol=2, frameon=False)
+fig4.tight_layout()
+fig4.savefig("customerpreferences.png", dpi=300)
 # %%
