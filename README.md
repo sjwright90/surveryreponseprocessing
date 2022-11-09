@@ -1,2 +1,12 @@
 # surveryreponseprocessing
- processing of survery responses
+ Processing the results from the survey
+ 
+ figs:
+ 
+ ![](/customerpreferences.png)
+ 
+ ![](/payextrafornocommercial.png)
+ 
+ ![](/servicesbyuserage.png)
+ 
+ ![](/willingtopaymonthly.png)
