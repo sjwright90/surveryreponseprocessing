@@ -61,9 +61,8 @@ sns.countplot(data = filt,x = "agebins",
 ax1.set_title("Customer subscriptions by age")
 ax1.set_ylabel("Count")
 ax1.set_xlabel("Age Groups")
-ax1.legend(bbox_to_anchor=(1.05,-.15), ncol=5, frameon=False,
+ax1.legend(loc="upper right",frameon=False,
             labels=list(map(lambda x: x.title(), filt.services.unique())))
-fig1.tight_layout()
 fig1.show()
 fig1.savefig("servicesbyuserage.png", dpi=300)
 # %%
@@ -74,7 +73,6 @@ ax2.set_title("Monthly amount customers are willing to\npay for streaming servic
 ax2.set_ylabel("Count")
 ax2.set_xlabel("Age Groups")
 ax2.legend(frameon=False, title="Cost per month in dollars")
-fig2.tight_layout()
 fig2.savefig("willingtopaymonthly.png", dpi=300)
 # %%
 allresp["payextr"] = np.where(allresp.payextr.str.startswith("y"),"Yes","No")
@@ -85,7 +83,6 @@ ax3.set_title("Customer willingness to pay extra for\ncommercial free streaming"
 ax3.set_ylabel("Count")
 ax3.set_xlabel("Age Groups")
 ax3.legend(frameon=False)
-fig3.tight_layout()
 fig3.savefig("payextrafornocommercial.png",dpi=300)
 
 # %%
@@ -96,10 +93,9 @@ allresp["Imp"] = allresp.Imp.replace(imprepld)
 # %%
 fig4,ax4 = plt.subplots()
 sns.countplot(data=allresp, x="agebins", hue="Imp",palette="Set2", ax=ax4)
-ax4.set_title("Customer's preferences in a streaming service")
+ax4.set_title("Most important feature in streaming service")
 ax4.set_ylabel("Count")
 ax4.set_xlabel("Age Groups")
-ax4.legend(bbox_to_anchor=(.9,-.15), ncol=2, frameon=False)
-fig4.tight_layout()
+ax4.legend(loc="upper right",frameon=False)
 fig4.savefig("customerpreferences.png", dpi=300)
 # %%
