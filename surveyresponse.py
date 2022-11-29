@@ -10,7 +10,11 @@ month = pd.read_excel("surveyresp.xlsx", sheet_name="monthlypay", header=0)
 commpref = pd.read_excel("surveyresp.xlsx", sheet_name="extranocom", header=0)
 whichserv = pd.read_excel("surveyresp.xlsx", sheet_name="which", header=0)
 allresp = pd.read_excel("surveyresp.xlsx", sheet_name="all", header=0)
-importance = pd.read_excel("surveyresp.xlsx", sheet_name="important", header=0)
+importance = pd.read_excel("surveyresp.xlsx", sheet_name="important", header=1)
+# %%
+sns.histplot(data = importance, y=importance.iloc[:,1], stat="percent")
+# %%
+plt.barh(data=importance, y=importance.iloc[:,0],width=importance.iloc[:,1])
 # %%
 def str_cleaning(df,column):
     df[column] = df[column].str.lower()
